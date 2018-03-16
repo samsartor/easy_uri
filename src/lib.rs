@@ -50,19 +50,19 @@ fn percent_decode(input: &str) -> Result<String, &'static str>  {
         .map_err(|_| "percent-encoded string is not valid UTF-8")
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Authority {
     pub user: String,
     pub password: Option<String>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Host {
     pub name: String,
     pub port: Option<u32>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Uri {
     pub scheme: Option<String>,
     pub auth: Option<Authority>,
@@ -82,7 +82,7 @@ impl FromStr for Uri {
 impl Display for Uri {
     fn fmt(&self, f: &mut Formatter) -> Result<(), FmtError> {
         // TODO: percent re-encode
-        
+
         println!("{:?}", self);
         if let Some(ref scheme) = self.scheme {
             write!(f, "{}:", scheme)?;
