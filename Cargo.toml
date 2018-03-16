@@ -1,0 +1,13 @@
+[package]
+name = "easy_uri"
+version = "0.1.0"
+authors = ["Sam Sartor <me@samsartor.com>"]
+
+[dependencies]
+serde = { version = "1", optional = true }
+
+[build-dependencies]
+peg = "0.5"
+
+[features]
+serialize = ["serde"]

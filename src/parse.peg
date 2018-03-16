@@ -1,0 +1,37 @@
+use super::{Uri, percent_decode, Authority, Host};
+use std::str::FromStr;
+use std::path::PathBuf;
+
+char_ = [a-zA-Z0-9-._~]
+char_uh = char_ / [!$&'()*+,;=]
+char_p = char_uh / [:@]
+char_qf = char_p / [?/]
+
+scheme -> String = s:$([a-zA-Z][a-zA-Z0-9+.-]*) ":" { s.to_owned() }
+
+authority -> Authority = 
+    u:(u:$(char_uh+) {? percent_decode(u) })
+    p:(":" p:$(char_uh+) {? percent_decode(p) })? "@" 
+    { Authority { user: u, password: p } }
+host -> Host = 
+    h:(h:$(char_uh+) {? percent_decode(h) })
+    p:(":" p:$([0-9]+)+ {? FromStr::from_str(p).map_err(|_| "port number is invalid") })?
+    { Host { name: h, port: p } }
+
+path = (char_p / [/])*
+
+uri_body -> (Option<Authority>, Option<Host>, PathBuf) = 
+        "//" 
+        a:authority?
+        h:host
+        p:(p:$("/" path) {? percent_decode(p) })
+    { (a, Some(h), p.into()) } /
+        p:(p:$(path) {? percent_decode(p) })
+    { (None, None, p.into()) }
+
+pub parse_uri -> Uri = s:scheme? b:uri_body { Uri {
+    scheme: s,
+    auth: b.0,
+    host: b.1,
+    path: b.2,
+} }
